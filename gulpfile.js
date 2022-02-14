@@ -80,6 +80,18 @@ const pugFilePagesPaths = [
     paths.src.pages + '*.pug',
 ];
 
+// Pug options
+const pluginPugOptions = {
+    locals: {
+        generateRandomNumber
+    }
+};
+
+// Gulp data options
+const pluginDataOptions = function (file) {
+    return { require };
+};
+
 // Compile SCSS
 gulp.task('scss', function () {
     return gulp.src([
@@ -113,15 +125,9 @@ gulp.task('pug', function () {
         //     console.log(file.path);
         //     return JSON.parse(fs.readFileSync('./src/dummy/' + path.basename(file.path) + '.json'));
         // }))
-        .pipe(data(function (file) {
-            return { require };
-        }))
+        .pipe(data(pluginDataOptions))
         .pipe(plumber())
-        .pipe(pug({
-            locals: {
-                generateRandomNumber
-            }
-        }))
+        .pipe(pug(pluginPugOptions))
         .pipe(gulp.dest(paths.temp.base))
         .pipe(browserSync.stream());
 });
@@ -135,15 +141,9 @@ gulp.task('pugPages', function () {
         //     console.log(file.path);
         //     return JSON.parse(fs.readFileSync('./src/dummy/' + path.basename(file.path) + '.json'));
         // }))
-        .pipe(data(function (file) {
-            return { require };
-        }))
+        .pipe(data(pluginDataOptions))
         .pipe(plumber())
-        .pipe(pug({
-            locals: {
-                generateRandomNumber
-            }
-        }))
+        .pipe(pug(pluginPugOptions))
         .pipe(gulp.dest(paths.temp.base))
         .pipe(browserSync.stream());
 });
@@ -188,7 +188,7 @@ gulp.task('serve', gulp.series('scss', 'pug', 'pugPages', 'html', 'assets', 'ven
 // Beautify CSS
 gulp.task('beautify:css', function () {
     return gulp.src([
-        paths.dev.css + '/app.css'
+        paths.dev.css + '/all.css'
     ])
         .pipe(cssbeautify())
         .pipe(gulp.dest(paths.dev.css))
@@ -197,7 +197,7 @@ gulp.task('beautify:css', function () {
 // Minify CSS
 gulp.task('minify:css', function () {
     return gulp.src([
-        paths.dist.css + '/app.css'
+        paths.dist.css + '/all.css'
     ])
     .pipe(cleanCss())
     .pipe(gulp.dest(paths.dist.css))
@@ -233,7 +233,13 @@ gulp.task('copy:dist:css', function () {
     return gulp.src([paths.src.components + '/**/**/*.scss', paths.src.scss + '/app.scss'])
         .pipe(wait(500))
         .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
+        .pipe(
+            sass({
+                includePaths: ['node_modules']
+            })
+            .on('error', sass.logError)
+        )
+        .pipe(concat('all.css')) // concat will combine all files declared in your "src"
         .pipe(autoprefixer({
             overrideBrowserslist: ['> 1%']
         }))
@@ -245,7 +251,13 @@ gulp.task('copy:dev:css', function () {
     return gulp.src([paths.src.components + '/**/**/*.scss', paths.src.scss + '/app.scss'])
         .pipe(wait(500))
         .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
+        .pipe(
+            sass({
+                includePaths: ['node_modules']
+            })
+            .on('error', sass.logError)
+        )
+        .pipe(concat('all.css')) // concat will combine all files declared in your "src"
         .pipe(autoprefixer({
             overrideBrowserslist: ['> 1%']
         }))
@@ -280,16 +292,26 @@ gulp.task('copy:dev:html', function () {
 
 // Copy pug
 gulp.task('copy:dist:pug', function () {
-    return gulp.src(pugFilePaths)
+    return gulp.src(pugFilePagesPaths, {
+        base: './src/components/pages',
+        since: gulp.lastRun('copy:dist:pug')
+    })
+        .pipe(data(pluginDataOptions))
         .pipe(plumber())
-        .pipe(pug())
-        .pipe(gulp.dest(paths.dev.base));
+        .pipe(pug(pluginPugOptions))
+        .pipe(gulp.dest(paths.dist.base));
 });
 
 gulp.task('copy:dev:pug', function () {
-    return gulp.src(pugFilePaths)
+    return gulp.src(pugFilePagesPaths, {
+        base: './src/components/pages',
+        since: gulp.lastRun('copy:dev:pug')
+    })
+        .pipe(data(pluginDataOptions))
         .pipe(plumber())
-        .pipe(pug())
+        .pipe(pug(Object.assign(pluginPugOptions, {
+            pretty: true
+        })))
         .pipe(gulp.dest(paths.dev.base));
 });
 
