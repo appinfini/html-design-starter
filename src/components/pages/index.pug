@@ -1,14 +1,12 @@
 extends ../templates/default
 
-block pageTitle
-  title #{'Home' + pageTitle}
-  - const activePage = 'home'; 
+block metaTitle
+  title #{'Home' + metaTitle}
+  - const activePage = 'home';
+  - const pageTitle = 'HTML Design Starter Kit';
 
 block content
-  h1.title HTML Design Starter Kit
-
-  p.description
-    strong A simple HTML Design Starter Kit for modern web development.
+  p A simple HTML Design Starter Kit for modern web development.
 
   include ../partials/container/index
     +link('/ui-kit.html', 'Link to UI Kit page')

@@ -1,8 +1,6 @@
 extends ../../templates/default
 
-block pageTitle
-  title #{'Orders' + pageTitle}
+block metaTitle
+  title #{'Orders' + metaTitle}
   - const activePage = 'orders'; 
-
-block content
-  h1.title Orders
+  - const pageTitle = 'Orders';

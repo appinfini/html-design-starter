@@ -1,8 +1,8 @@
 extends ../../templates/default
 
-block pageTitle
-  title #{'Profile' + pageTitle}
-  - const activePage = 'profile'; 
+block metaTitle
+  title #{'Profile' + metaTitle}
+  - const activePage = 'profile';
+  - const pageTitle = 'Profile';
 
 block content
-  h1.title Profile

@@ -11,6 +11,9 @@ body
     include ../partials/layout/header
 
     div.main-content.mt-3
+      if typeof pageTitle !== 'undefined' && pageTitle
+        h1.page-title #{pageTitle}
+
       block content
 
   include ../partials/layout/foot

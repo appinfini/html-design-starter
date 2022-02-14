@@ -1,14 +1,13 @@
 extends ../templates/default
 
-block pageTitle
-  title #{'UI Kit' + pageTitle}
-  - const activePage = 'ui-kit'; 
+block metaTitle
+  title #{'UI Kit' + metaTitle}
+  - const activePage = 'ui-kit';
+  - const pageTitle = 'UI Kit';
 
 block content
-  h1.title UI Kit
 
-  p.description
-    strong List of all components.
+  p List of all components.
 
   include ../partials/container/index
     +link('/', 'Link to home page')
