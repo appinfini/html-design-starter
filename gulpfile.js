@@ -80,6 +80,13 @@ const pugFilePagesPaths = [
     paths.src.pages + '*.pug',
 ];
 
+// SCSS file pages paths
+const scssFilePaths = [
+    paths.src.scss + '/app.scss',
+    paths.src.components + '**/**/*.scss',
+    paths.src.components + '**/*.scss'
+];
+
 // Pug options
 const pluginPugOptions = {
     locals: {
@@ -94,11 +101,7 @@ const pluginDataOptions = function (file) {
 
 // Compile SCSS
 gulp.task('scss', function () {
-    return gulp.src([
-        paths.src.scss + '/app.scss',
-        paths.src.components + '**/**/*.scss',
-        paths.src.components + '**/*.scss'
-    ])
+    return gulp.src(scssFilePaths)
         .pipe(wait(500))
         .pipe(sourcemaps.init())
         .pipe(
@@ -177,7 +180,7 @@ gulp.task('serve', gulp.series('scss', 'pug', 'pugPages', 'html', 'assets', 'ven
         server: paths.temp.base
     });
 
-    gulp.watch([paths.src.components + '/**/**/*.scss', paths.src.scss + '/app.scss'], gulp.series('scss'));
+    gulp.watch(scssFilePaths, gulp.series('scss'));
     gulp.watch([paths.src.html, paths.src.base + '**.html', paths.src.partials], gulp.series('html'));
     gulp.watch(pugFilePaths, gulp.series('pug'));
     gulp.watch(pugFilePagesPaths, gulp.series('pugPages'));
