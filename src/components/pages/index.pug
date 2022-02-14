@@ -11,20 +11,4 @@ block content
     strong A simple HTML Design Starter Kit for modern web development.
 
   include ../partials/container/index
-    +link('/about.html', 'Link to about page')
-
-  include ../partials/container/index
-    +button({outline: false, title: 'Link button', type: 'link'})
- 
-  include ../partials/container/index
-    +button({outline: false, title: 'Primary button', type: 'primary'})
- 
-  include ../partials/container/index
-    +button({outline: true, title: 'Outline button', type: 'primary'})
- 
-  include ../partials/container/index
-    +list(1, 2, 3, 4)
- 
-  include ../partials/container/index
-    - const dataAccordion = require('./src/dummy/accordion.json')
-    +accordion({ items: dataAccordion})
+    +link('/ui-kit.html', 'Link to UI Kit page')
