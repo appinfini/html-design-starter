@@ -1,0 +1,12 @@
+extends ../templates/default
+
+block metaTitle
+  title #{'Home' + metaTitle}
+  - const activePage = 'home';
+  - const pageTitle = 'HTML Design Starter Kit';
+
+block content
+  p A simple HTML Design Starter Kit for modern web development.
+ 
+  +container()
+    +link('/ui-kit.html', 'Link to UI Kit page')

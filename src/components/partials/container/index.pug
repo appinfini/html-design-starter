@@ -1,0 +1,23 @@
+//- Usage:
+//- +container()
+
+//- Output:
+//- <div class="c-container></div>
+
+mixin container(title, subTitle)
+
+  //- Attributes
+  - const componentClassName = 'c-container';
+  - const className = attributes.class || '';
+
+  div(class=`${componentClassName} ${className}`)
+
+    if title
+      h5(class=`${componentClassName}__title`) #{title}
+
+    if subTitle
+      h6(class=`${componentClassName}__title-sub`) #{subTitle}
+
+    if block
+      div(class=`${componentClassName}__content`)
+        block

@@ -1,0 +1,29 @@
+mixin accordion(options)
+
+  //- Attributes
+  - const componentClassName = 'c-accordion';
+  - const className = attributes.class || '';
+
+  //- Getting properties
+  - const alwaysOpen = options.alwaysOpen || false;
+  - const items = options.items || '';
+
+  //- Preparing element id
+  - const elementId = `${componentClassName}-${generateRandomNumber()}`;
+
+  div(class=`${componentClassName} ${className}` id=`${elementId}`)
+
+    //- Iterate over items
+    each item, index in items
+
+      //- Preparing element IDs
+      - const elementItemId = `collapse-${index}`;
+      - const elementItemHeaderId = `${componentClassName}-heading-${index}`;
+      - const elementItemCollapseClasses = `accordion-collapse collapse ${index === 0 ? 'show' : ''}`;
+      - const dataBsParent = alwaysOpen ? '' : `#${elementId}`;
+
+      div.accordion-item
+        h2.accordion-header(id=`${elementItemHeaderId}`)
+          button.accordion-button(type="button" data-bs-toggle="collapse" data-bs-target=`#${elementItemId}` aria-expanded="true" aria-controls=`${elementItemId}`) #{item.title}
+        div(class=`${elementItemCollapseClasses}` id=`${elementItemId}` aria-labelledby=`${elementItemHeaderId}` data-bs-parent=`${dataBsParent}`)
+          div.accordion-body #{item.content}

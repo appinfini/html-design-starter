@@ -1,0 +1,12 @@
+//- Usage:
+//- +link('/foo', 'foo')(class="btn")
+
+//- Output:
+//- <a class="c-link btn" href="/foo">foo</a>
+
+mixin link(href, title)
+
+  //- Attributes
+  - const className = attributes.class || '';
+
+  a(class=`c-link ${className}` href=href)= title

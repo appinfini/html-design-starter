@@ -1,0 +1,29 @@
+extends ../templates/default
+
+block metaTitle
+  title #{'UI Kit' + metaTitle}
+  - const activePage = 'ui-kit';
+  - const pageTitle = 'UI Kit';
+
+block content
+
+  p List of all components.
+
+  +container('Anchor')
+    +link('/', 'Link to home page')
+
+  +container('Button as link')
+    +button({outline: false, title: 'Link button', type: 'link'})
+ 
+  +container('Primary button')
+    +button({outline: false, title: 'Button', type: 'primary'})
+ 
+  +container('Outlined button')
+    +button({outline: true, title: 'Button', type: 'primary'})
+ 
+  +container('List')
+    +list(1, 2, 3, 4)
+ 
+  +container('Accordion')
+    - const dataAccordion = require('./src/dummy/accordion.json')
+    +accordion({ alwaysOpen: false, items: dataAccordion })

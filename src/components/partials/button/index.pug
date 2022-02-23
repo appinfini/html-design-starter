@@ -1,0 +1,17 @@
+//- Usage:
+//- +button({outline: true, title: 'Primary', type: 'primary'})(class="btn-custom")
+
+//- Output:
+//- <a class="c-button btn-outline-primary btn-custom" href="/foo">foo</a>
+
+mixin button(options)
+
+  //- Options
+  - const outline = (options && options.outline) || false;
+  - const title = (options && options.title) || null;
+  - const type = (options && options.type) || 'link';
+
+  //- Attributes
+  - const className = attributes.class || '';
+
+  button(class=`c-button btn ${type ? `btn-${outline ? 'outline-' : ''}${type}` : ''} ${className}`)= title

@@ -1,0 +1,20 @@
+include ../partials/layout/head
+
+//- Including all components
+include ../partials/accordion/index
+include ../partials/button/index
+include ../partials/container/index
+include ../partials/link/index
+include ../partials/list/index
+
+body
+  div.container
+    include ../partials/layout/header
+
+    div.main-content.mt-3
+      if typeof pageTitle !== 'undefined' && pageTitle
+        h1.page-title #{pageTitle}
+
+      block content
+
+  include ../partials/layout/foot

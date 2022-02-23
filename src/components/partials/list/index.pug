@@ -1,0 +1,19 @@
+//- Usage:
+//- +list(1, 2, 3, 4)(class="social-links")
+
+//- Output:
+//- <ul class="c-list social-links">
+//-   <li>1</li>
+//-   <li>2</li>
+//-   <li>3</li>
+//-   <li>4</li>
+//- </ul>
+
+mixin list(...items)
+
+  //- Attributes
+  - const className = attributes.class || '';
+
+  ul(class=`c-list ${className}`)
+    each item in items
+      li= item
