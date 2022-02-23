@@ -1,0 +1,16 @@
+{# Usage: #}
+{# link({ href: '/foo', title: 'foo', className: 'btn' }) #}
+
+{# Output: #}
+{# <a class="c-link btn" href="/foo">foo</a> #}
+
+{% macro link(options) %}
+
+  {# Getting properties #}
+  {% set className = options.className or '' %}
+  {% set href = options.href %}
+  {% set title = options.title %}
+
+  <a class="{{ 'c-link ' + className }}" href="{{ href }}">{{ title }}</a>
+
+{% endmacro %}

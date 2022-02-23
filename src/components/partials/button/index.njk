@@ -1,0 +1,23 @@
+{# Usage: #}
+{# button({ className: 'btn-custom', outline: true, title: 'Primary', type: 'primary' }) #}
+
+{# Output: #}
+{# <a class="c-button btn-outline-primary btn-custom" href="/foo">foo</a> #}
+
+{% macro button(options) %}
+
+  {# Getting properties #}
+  {% set className = options.className or '' %}
+  {% set href = options.href %}
+  {% set outline = options.outline or false %}
+  {% set title = options.title %}
+  {% set type = options.type %}
+
+  {# Preparing classes #}
+  {% set componentClassNames = "btn-outline-" + type if (outline and type) else ("btn-" + type if type else "") %}
+
+  <button class="{{ 'c-button btn ' + componentClassNames }}">
+    {{ title }}
+  </button>
+
+{% endmacro %}

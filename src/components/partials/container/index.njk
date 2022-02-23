@@ -1,0 +1,35 @@
+{# Usage: #}
+{# {{
+  container(
+    link,
+    { href: '/foo', title: 'foo' },
+    'Link'
+  )
+}} #}
+
+{# Output: #}
+{# <div class="c-container">
+  <a class="c-link" href="/foo">foo</a>
+</div> #}
+
+{% macro container(macroFunction, data = null, title = null, className = '') %}
+
+  {# Getting properties #}
+  {% set componentClassName = 'c-container' %}
+
+  <div class="{{ componentClassName + ' ' + className }}">
+
+    {# If title exists #}
+    {% if title %}
+      <h5 class="{{ componentClassName + '__title' }}">{{ title }}</h5>
+    {% endif %}
+
+    {# Calling macro #}
+    {% if data %}
+      <div class="{{ componentClassName + '__content' }}">
+        {{ macroFunction(data) }}
+      </div>
+    {% endif %}
+  </div>
+
+{% endmacro %}

@@ -6,10 +6,10 @@ const concat = require('gulp-concat');
 const cssbeautify = require('gulp-cssbeautify');
 const data = require('gulp-data');
 const del = require('del');
-const fileinclude = require('gulp-file-include');
 const gulp = require('gulp');
 const htmlmin = require('gulp-htmlmin');
 const npmDist = require('gulp-npm-dist');
+const nunjucksRender = require('gulp-nunjucks-render');
 const plumber = require('gulp-plumber');
 const pug = require('gulp-pug');
 const sass = require('gulp-sass')(require('node-sass'));
@@ -63,6 +63,24 @@ const paths = {
     }
 };
 
+// HTML file paths
+const htmlExtensions = '+(html|njk)';
+const htmlFilePaths = [
+    paths.src.components + '**/**/*.' + htmlExtensions,
+    paths.src.components + '**.' + htmlExtensions,
+    paths.src.components + '**/*.' + htmlExtensions,
+    paths.src.components + '*.' + htmlExtensions,
+
+    '!' + paths.src.pages + '*.' + htmlExtensions,
+    '!' + paths.src.pages + '**/*.' + htmlExtensions,
+];
+
+// HTML file pages paths
+const htmlFilePagesPaths = [
+    paths.src.pages + '**/*.' + htmlExtensions,
+    paths.src.pages + '*.' + htmlExtensions,
+];
+
 // Pug file paths
 const pugFilePaths = [
     paths.src.components + '**/**/*.pug',
@@ -97,6 +115,14 @@ const pluginPugOptions = {
 // Gulp data options
 const pluginDataOptions = function (file) {
     return { require };
+};
+
+// Gulp data options
+const pluginNunjucksRenderOptions = {
+    data: {
+        generateRandomNumber
+    },
+    path: ['src/components/']
 };
 
 // Compile SCSS
@@ -152,15 +178,26 @@ gulp.task('pugPages', function () {
 });
 
 gulp.task('html', function () {
-    return gulp.src([paths.src.html])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'development'
-            }
-        }))
-        .pipe(gulp.dest(paths.temp.html))
+    return gulp.src(htmlFilePaths, {
+        base: './src/components',
+        since: gulp.lastRun('html')
+    })
+        .pipe(data(pluginDataOptions))
+        .pipe(plumber())
+        .pipe(nunjucksRender(pluginNunjucksRenderOptions))
+        .pipe(gulp.dest(paths.temp.base))
+        .pipe(browserSync.stream());
+});
+
+gulp.task('htmlPages', function () {
+    return gulp.src(htmlFilePagesPaths, {
+        base: './src/components/pages',
+        since: gulp.lastRun('htmlPages')
+    })
+        .pipe(data(pluginDataOptions))
+        .pipe(plumber())
+        .pipe(nunjucksRender(pluginNunjucksRenderOptions))
+        .pipe(gulp.dest(paths.temp.base))
         .pipe(browserSync.stream());
 });
 
@@ -175,13 +212,14 @@ gulp.task('vendor', function() {
       .pipe(gulp.dest(paths.temp.vendor));
 });
 
-gulp.task('serve', gulp.series('scss', 'pug', 'pugPages', 'html', 'assets', 'vendor', function() {
+gulp.task('serve', gulp.series('scss', 'pug', 'pugPages', 'html', 'htmlPages', 'assets', 'vendor', function () {
     browserSync.init({
         server: paths.temp.base
     });
 
     gulp.watch(scssFilePaths, gulp.series('scss'));
-    gulp.watch([paths.src.html, paths.src.base + '**.html', paths.src.partials], gulp.series('html'));
+    gulp.watch(htmlFilePaths, gulp.series('html'));
+    gulp.watch(htmlFilePagesPaths, gulp.series('htmlPages'));
     gulp.watch(pugFilePaths, gulp.series('pug'));
     gulp.watch(pugFilePagesPaths, gulp.series('pugPages'));
     gulp.watch([paths.src.assets], gulp.series('assets'));
@@ -211,13 +249,6 @@ gulp.task('minify:html', function () {
     return gulp.src([paths.dist.html + '/**/*.html'])
         .pipe(htmlmin({
             collapseWhitespace: true
-        }))
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'production'
-            }
         }))
         .pipe(gulp.dest(paths.dist.html))
 });
@@ -271,25 +302,11 @@ gulp.task('copy:dev:css', function () {
 // Copy Html
 gulp.task('copy:dist:html', function () {
     return gulp.src([paths.src.html])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'production'
-            }
-        }))
         .pipe(gulp.dest(paths.dist.html));
 });
 
 gulp.task('copy:dev:html', function () {
     return gulp.src([paths.src.html])
-        .pipe(fileinclude({
-            prefix: '@@',
-            basepath: './src/partials/',
-            context: {
-                environment: 'development'
-            }
-        }))
         .pipe(gulp.dest(paths.dev.html));
 });
 

@@ -1,0 +1,38 @@
+{% set metaTitle = 'UI Kit' %}
+{% set activePage = 'ui-kit' %}
+{% set pageTitle = metaTitle %}
+{% extends "templates/default.njk" %}
+{% block content %}
+  <p>List of all components.</p>
+  {{ container(
+    link,
+    { href: '/', title: 'Link to home page' },
+    'Anchor'
+  ) }}
+  {{ container(
+    button,
+    { outline: false, title: 'Link', type: 'link' },
+    'Button as link'
+  ) }}
+  {{ container(
+    button,
+    { outline: false, title: 'Button', type: 'primary' },
+    'Primary button'
+  ) }}
+  {{ container(
+    button,
+    { outline: true, title: 'Button', type: 'primary' },
+    'Outlined button'
+  ) }}
+  {{ container(
+    list,
+    { items: [1, 2, 3, 4] },
+    'List'
+  ) }}
+  {% set dataAccordion = require('./src/dummy/accordion.json') %}
+  {{ container(
+    accordion,
+    { alwaysOpen: false, items: dataAccordion, uniqueKey: generateRandomNumber() },
+    'Accordion' 
+  ) }}
+{% endblock %}

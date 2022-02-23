@@ -1,0 +1,42 @@
+{% macro accordion(options) %}
+
+  {# Getting properties #}
+  {% set componentClassName = 'c-accordion' %}
+  {% set alwaysOpen = options.alwaysOpen or false %}
+  {% set className = options.className or '' %}
+  {% set items = options.items %}
+  {% set uniqueKey = options.uniqueKey %}
+
+  {# Preparing element id #}
+  {% set elementId = componentClassName + '-' + uniqueKey %}
+
+  <div class="{{ componentClassName + ' ' + className }}" id="{{ elementId }}">
+
+    {# Iterate over items #}
+    {% for item in items %}
+
+      {% set index = loop.index0 %}
+
+      {# Preparing element IDs #}
+      {% set elementItemId = 'collapse-' + index %}
+      {% set elementItemHeaderId = componentClassName + '-heading-' + index %}
+      {% set elementItemCollapseClasses = 'accordion-collapse collapse ' + ('show' if index === 0 else '') %}
+      {% set dataBsParent = '' if alwaysOpen else '#' + elementId  %}
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="{{ elementItemHeaderId }}">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#{{ elementItemId }}" aria-expanded="true" aria-controls="{{ elementItemId }}">
+            {{ item.title }}
+          </button>
+        </h2>
+        <div class="{{ elementItemCollapseClasses }}" id="{{ elementItemId }}" aria-labelledby="{{ elementItemHeaderId }}" data-bs-parent="{{ dataBsParent }}">
+          <div class="accordion-body">
+            {{ item.content }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+
+{% endmacro %}

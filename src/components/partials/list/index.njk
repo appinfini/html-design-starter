@@ -1,0 +1,25 @@
+{# Usage: #}
+{# list({ items: [1, 2, 3, 4] }) #}
+
+{# Output: #}
+{# <ul class="c-list">
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
+  <li>4</li>
+</ul> #}
+
+{% macro list(options) %}
+
+  {# Getting properties #}
+  {% set className = options.className or '' %}
+  {% set items = options.items %}
+  {% set key = options.key %}
+
+  <ul class="{{ 'c-list ' + className }}">
+    {% for item in items %}
+      <li>{{ item[key] if key else item }}</li>
+    {% endfor %}
+  </ul>
+
+{% endmacro %}

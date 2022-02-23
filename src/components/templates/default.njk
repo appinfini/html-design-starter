@@ -1,0 +1,19 @@
+{% include "partials/layout/head.njk" %}
+{# Including all components #}
+{% from "partials/accordion/index.njk" import accordion %}
+{% from "partials/button/index.njk" import button %}
+{% from "partials/container/index.njk" import container %}
+{% from "partials/link/index.njk" import link %}
+{% from "partials/list/index.njk" import list %}
+<body>
+  <div class="container">
+    {% include "partials/layout/header.njk" %}
+    <div class="main-content mt-3">
+      {% if pageTitle %}
+        <h1 class="page-title">{{ pageTitle }}</h1>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+  {% include "partials/layout/foot.njk" %}
+</body>
