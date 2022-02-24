@@ -44,11 +44,11 @@ const paths = {
     src: {
         base: './src/',
         css: './src/css',
-        components: './src/components/',
-        pages: './src/components/pages/',
-        html: './src/html/**/*.html',
+        components: './src/components',
+        nunjucksComponents: './src/components-nunjucks',
+        pages: './src/components/pages',
+        nunjucksPages: './src/components-nunjucks/pages',
         assets: './src/assets/**/*.*',
-        partials: './src/partials/**/*.html',
         scss: './src/scss',
         node_modules: './node_modules/',
         vendor: './vendor'
@@ -63,46 +63,46 @@ const paths = {
     }
 };
 
-// HTML file paths
-const htmlExtensions = '+(html|njk)';
-const htmlFilePaths = [
-    paths.src.components + '**/**/*.' + htmlExtensions,
-    paths.src.components + '**.' + htmlExtensions,
-    paths.src.components + '**/*.' + htmlExtensions,
-    paths.src.components + '*.' + htmlExtensions,
+// Nunjucks file paths
+const nunjucksExtensions = '+(html|njk)';
+const nunjucksFilePaths = [
+    paths.src.nunjucksComponents + '/**/**/*.' + nunjucksExtensions,
+    paths.src.nunjucksComponents + '/**.' + nunjucksExtensions,
+    paths.src.nunjucksComponents + '/**/*.' + nunjucksExtensions,
+    paths.src.nunjucksComponents + '/*.' + nunjucksExtensions,
 
-    '!' + paths.src.pages + '*.' + htmlExtensions,
-    '!' + paths.src.pages + '**/*.' + htmlExtensions,
+    '!' + paths.src.nunjucksPages + '/*.' + nunjucksExtensions,
+    '!' + paths.src.nunjucksPages + '/**/*.' + nunjucksExtensions,
 ];
 
-// HTML file pages paths
-const htmlFilePagesPaths = [
-    paths.src.pages + '**/*.' + htmlExtensions,
-    paths.src.pages + '*.' + htmlExtensions,
+// Nunjucks file pages paths
+const nunjucksFilePagesPaths = [
+    paths.src.nunjucksPages + '/**/*.' + nunjucksExtensions,
+    paths.src.nunjucksPages + '/*.' + nunjucksExtensions,
 ];
 
 // Pug file paths
 const pugFilePaths = [
-    paths.src.components + '**/**/*.pug',
-    paths.src.components + '**.pug',
-    paths.src.components + '**/*.pug',
-    paths.src.components + '*.pug',
+    paths.src.components + '/**/**/*.pug',
+    paths.src.components + '/**.pug',
+    paths.src.components + '/**/*.pug',
+    paths.src.components + '/*.pug',
 
-    '!' + paths.src.pages + '*.pug',
-    '!' + paths.src.pages + '**/*.pug',
+    '!' + paths.src.pages + '/*.pug',
+    '!' + paths.src.pages + '/**/*.pug',
 ];
 
 // Pug file pages paths
 const pugFilePagesPaths = [
-    paths.src.pages + '**/*.pug',
-    paths.src.pages + '*.pug',
+    paths.src.pages + '/**/*.pug',
+    paths.src.pages + '/*.pug',
 ];
 
 // SCSS file pages paths
 const scssFilePaths = [
     paths.src.scss + '/app.scss',
-    paths.src.components + '**/**/*.scss',
-    paths.src.components + '**/*.scss'
+    paths.src.components + '/**/**/*.scss',
+    paths.src.components + '/**/*.scss'
 ];
 
 // Pug options
@@ -122,7 +122,7 @@ const pluginNunjucksRenderOptions = {
     data: {
         generateRandomNumber
     },
-    path: ['src/components/']
+    path: [paths.src.nunjucksComponents + '/']
 };
 
 // Compile SCSS
@@ -147,13 +147,9 @@ gulp.task('scss', function () {
 
 gulp.task('pug', function () {
     return gulp.src(pugFilePaths, {
-        base: './src/components',
+        base: paths.src.components,
         since: gulp.lastRun('pug')
     })
-        // .pipe(data(function (file) {
-        //     console.log(file.path);
-        //     return JSON.parse(fs.readFileSync('./src/dummy/' + path.basename(file.path) + '.json'));
-        // }))
         .pipe(data(pluginDataOptions))
         .pipe(plumber())
         .pipe(pug(pluginPugOptions))
@@ -163,13 +159,9 @@ gulp.task('pug', function () {
 
 gulp.task('pugPages', function () {
     return gulp.src(pugFilePagesPaths, {
-        base: './src/components/pages',
+        base: paths.src.pages,
         since: gulp.lastRun('pugPages')
     })
-        // .pipe(data(function (file) {
-        //     console.log(file.path);
-        //     return JSON.parse(fs.readFileSync('./src/dummy/' + path.basename(file.path) + '.json'));
-        // }))
         .pipe(data(pluginDataOptions))
         .pipe(plumber())
         .pipe(pug(pluginPugOptions))
@@ -177,10 +169,10 @@ gulp.task('pugPages', function () {
         .pipe(browserSync.stream());
 });
 
-gulp.task('html', function () {
-    return gulp.src(htmlFilePaths, {
-        base: './src/components',
-        since: gulp.lastRun('html')
+gulp.task('nunjucks', function () {
+    return gulp.src(nunjucksFilePaths, {
+        base: paths.src.nunjucksComponents,
+        since: gulp.lastRun('nunjucks')
     })
         .pipe(data(pluginDataOptions))
         .pipe(plumber())
@@ -189,10 +181,10 @@ gulp.task('html', function () {
         .pipe(browserSync.stream());
 });
 
-gulp.task('htmlPages', function () {
-    return gulp.src(htmlFilePagesPaths, {
-        base: './src/components/pages',
-        since: gulp.lastRun('htmlPages')
+gulp.task('nunjucksPages', function () {
+    return gulp.src(nunjucksFilePagesPaths, {
+        base: paths.src.nunjucksPages,
+        since: gulp.lastRun('nunjucksPages')
     })
         .pipe(data(pluginDataOptions))
         .pipe(plumber())
@@ -212,19 +204,33 @@ gulp.task('vendor', function() {
       .pipe(gulp.dest(paths.temp.vendor));
 });
 
-gulp.task('serve', gulp.series('scss', 'pug', 'pugPages', 'html', 'htmlPages', 'assets', 'vendor', function () {
-    browserSync.init({
-        server: paths.temp.base
-    });
+gulp.task(
+    'serve',
+    gulp.series(
+        [
+            'scss',
+            'pug',
+            'pugPages',
+            // 'nunjucks',
+            // 'nunjucksPages',
+            'assets',
+            'vendor'
+        ],
+        function () {
+            browserSync.init({
+                server: paths.temp.base
+            });
 
-    gulp.watch(scssFilePaths, gulp.series('scss'));
-    gulp.watch(htmlFilePaths, gulp.series('html'));
-    gulp.watch(htmlFilePagesPaths, gulp.series('htmlPages'));
-    gulp.watch(pugFilePaths, gulp.series('pug'));
-    gulp.watch(pugFilePagesPaths, gulp.series('pugPages'));
-    gulp.watch([paths.src.assets], gulp.series('assets'));
-    gulp.watch([paths.src.vendor], gulp.series('vendor'));
-}));
+            gulp.watch(scssFilePaths, gulp.series('scss'));
+            // gulp.watch(nunjucksFilePaths, gulp.series('nunjucks'));
+            // gulp.watch(nunjucksFilePagesPaths, gulp.series('nunjucksPages'));
+            gulp.watch(pugFilePaths, gulp.series('pug'));
+            gulp.watch(pugFilePagesPaths, gulp.series('pugPages'));
+            gulp.watch([paths.src.assets], gulp.series('assets'));
+            gulp.watch([paths.src.vendor], gulp.series('vendor'));
+        }
+    )
+);
 
 // Beautify CSS
 gulp.task('beautify:css', function () {
@@ -299,21 +305,27 @@ gulp.task('copy:dev:css', function () {
         .pipe(gulp.dest(paths.dev.css))
 });
 
-// Copy Html
-gulp.task('copy:dist:html', function () {
-    return gulp.src([paths.src.html])
-        .pipe(gulp.dest(paths.dist.html));
+// Copy nunjucks
+gulp.task('copy:dist:nunjucks', function () {
+    return gulp.src(nunjucksFilePagesPaths)
+        .pipe(data(pluginDataOptions))
+        .pipe(plumber())
+        .pipe(nunjucksRender(pluginNunjucksRenderOptions))
+        .pipe(gulp.dest(paths.dist.base));
 });
 
-gulp.task('copy:dev:html', function () {
-    return gulp.src([paths.src.html])
-        .pipe(gulp.dest(paths.dev.html));
+gulp.task('copy:dev:nunjucks', function () {
+    return gulp.src(nunjucksFilePagesPaths)
+        .pipe(data(pluginDataOptions))
+        .pipe(plumber())
+        .pipe(nunjucksRender(pluginNunjucksRenderOptions))
+        .pipe(gulp.dest(paths.dev.base));
 });
 
 // Copy pug
 gulp.task('copy:dist:pug', function () {
     return gulp.src(pugFilePagesPaths, {
-        base: './src/components/pages',
+        base: paths.src.pages,
         since: gulp.lastRun('copy:dist:pug')
     })
         .pipe(data(pluginDataOptions))
@@ -324,7 +336,7 @@ gulp.task('copy:dist:pug', function () {
 
 gulp.task('copy:dev:pug', function () {
     return gulp.src(pugFilePagesPaths, {
-        base: './src/components/pages',
+        base: paths.src.pages,
         since: gulp.lastRun('copy:dev:pug')
     })
         .pipe(data(pluginDataOptions))
@@ -357,8 +369,25 @@ gulp.task('copy:dev:vendor', function() {
       .pipe(gulp.dest(paths.dev.vendor));
 });
 
-gulp.task('build:dev', gulp.series('clean:dev', 'copy:dev:css', 'copy:dev:html', 'copy:dev:pug', 'copy:dev:assets', 'beautify:css', 'copy:dev:vendor'));
-gulp.task('build:dist', gulp.series('clean:dist', 'copy:dist:css', 'copy:dist:html', 'copy:dist:pug', 'copy:dist:assets', 'minify:css', 'minify:html', 'copy:dist:vendor'));
+gulp.task('build:dev', gulp.series(
+    'clean:dev',
+    'copy:dev:css',
+    // 'copy:dev:nunjucks',
+    'copy:dev:pug',
+    'copy:dev:assets',
+    'beautify:css',
+    'copy:dev:vendor'
+));
+gulp.task('build:dist', gulp.series(
+    'clean:dist',
+    'copy:dist:css',
+    // 'copy:dist:nunjucks',
+    'copy:dist:pug',
+    'copy:dist:assets',
+    'minify:css',
+    'minify:html',
+    'copy:dist:vendor'
+));
 
 // Default
 gulp.task('default', gulp.series('serve'));
