@@ -25,11 +25,9 @@
     {% endif %}
 
     {# Calling macro #}
-    {% if data %}
-      <div class="{{ componentClassName + '__content' }}">
-        {{ macroFunction(data) }}
-      </div>
-    {% endif %}
+    <div class="{{ componentClassName + '__content' }}">
+      {{ macroFunction(data) }}
+    </div>
   </div>
 
 {% endmacro %}
