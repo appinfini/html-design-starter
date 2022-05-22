@@ -1,0 +1,27 @@
+//- Usage:
+//- +image({alt: 'Banner image', loading: 'lazy', src: 'banner'})(class="btn-custom")
+
+//- Output:
+//- <img class="c-image img-fluid " alt="Banner image" loading="lazy" sizes="(max-width: 1400px) 100vw" src="assets/images/banner-1400px.webp" srcset="assets/images/banner-250px.webp 250w, assets/images/banner-300px.webp 300w, assets/images/banner-500px.webp 500w, assets/images/banner-600px.webp 600w, assets/images/banner-750px.webp 750w, assets/images/banner-900px.webp 900w, assets/images/banner-1000px.webp 1000w, assets/images/banner-1200px.webp 1200w, assets/images/banner-1250px.webp 1250w, assets/images/banner-1400px.webp 1400w">
+
+mixin image(options)
+
+  //- Options
+  - const alt = (options && options.alt) || 'Image';
+  - const loading = (options && options.loading) || 'lazy'; // auto, eager or lazy
+  - const maxHeight = (options && options.maxHeight) || null;
+  - const src = (options && options.src);
+
+  //- If link is external
+  - const isExternal = src.startsWith('http') || src.startsWith('assets/');
+
+  //- Attributes
+  - const className = attributes.class || '';
+
+  //- Preparing image attributes
+  - const baseUrl = 'assets/images/';
+  - const sizes = isExternal ? null : '(max-width: 1400px) 100vw';
+  - const srcset = isExternal ? null : `${baseUrl}${src}-250px.webp 250w, ${baseUrl}${src}-300px.webp 300w, ${baseUrl}${src}-500px.webp 500w, ${baseUrl}${src}-600px.webp 600w, ${baseUrl}${src}-750px.webp 750w, ${baseUrl}${src}-900px.webp 900w, ${baseUrl}${src}-1000px.webp 1000w, ${baseUrl}${src}-1200px.webp 1200w, ${baseUrl}${src}-1250px.webp 1250w, ${baseUrl}${src}-1400px.webp 1400w`;
+  - const imageSrc = isExternal ? src : `${baseUrl}${src}-1400px.webp`;
+
+  img(alt=alt class=`c-image img-fluid ${className}` style=(maxHeight ? `max-height:${maxHeight}px` : false) loading=loading sizes=(sizes ? sizes : false) src=imageSrc srcset=(srcset ? srcset : false))
