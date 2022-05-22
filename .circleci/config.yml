@@ -16,6 +16,33 @@ jobs:
       # Checking out git branch
       - checkout
 
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      # Installing dependencies
+      - run:
+          name: Installing dependencies
+          command: yarn install
+
+      # Preparing build
+      - run:
+          name: Preparing build
+          command: |
+            if [ "${CIRCLE_BRANCH}" = "release" ]; then
+              yarn run build
+            else
+              yarn run build
+            fi
+      # Saving cache
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
       # Installing AWS CLI
       - run:
           name: Install AWS CLI (first install pip, the Python package manager)
