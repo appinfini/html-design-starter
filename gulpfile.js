@@ -13,6 +13,7 @@ const nunjucksRender = require('gulp-nunjucks-render');
 const plumber = require('gulp-plumber');
 const pug = require('gulp-pug');
 const sass = require('gulp-sass')(require('node-sass'));
+const sharpResponsive = require('gulp-sharp-responsive');
 const sourcemaps = require('gulp-sourcemaps');
 const wait = require('gulp-wait');
 
@@ -25,16 +26,16 @@ const paths = {
         base: './dist/',
         css: './dist/css',
         html: './dist/html',
-        assets: './dist/assets',
-        img: './dist/assets/img',
+        assets: './dist/assets/js',
+        images: './dist/assets/images',
         vendor: './dist/vendor'
     },
     dev: {
         base: './html&css/',
         css: './html&css/css',
         html: './html&css/html',
-        assets: './html&css/assets',
-        img: './html&css/assets/img',
+        assets: './html&css/assets/js',
+        images: './html&css/assets/images',
         vendor: './html&css/vendor'
     },
     base: {
@@ -48,7 +49,11 @@ const paths = {
         nunjucksComponents: './src/components-nunjucks',
         pages: './src/components/pages',
         nunjucksPages: './src/components-nunjucks/pages',
-        assets: './src/assets/**/*.*',
+        assets: './src/assets/js/*.*',
+        images: [
+            './src/assets/images/**/*.*',
+            './src/assets/images/*.*',
+        ],
         scss: './src/scss',
         node_modules: './node_modules/',
         vendor: './vendor'
@@ -58,7 +63,8 @@ const paths = {
         css: './.temp/css',
         html: './.temp/html',
         pages: './.temp/pages',
-        assets: './.temp/assets',
+        assets: './.temp/assets/js',
+        images: './.temp/assets/images',
         vendor: './.temp/vendor'
     }
 };
@@ -105,6 +111,14 @@ const scssFilePaths = [
     paths.src.components + '/**/*.scss'
 ];
 
+// WebP options
+const webpOptions = {
+    quality: 90,
+    // lossless: true,
+    // nearLossless: true,
+    effort: 6
+};
+
 // Pug options
 const pluginPugOptions = {
     locals: {
@@ -123,6 +137,22 @@ const pluginNunjucksRenderOptions = {
         generateRandomNumber
     },
     path: [paths.src.nunjucksComponents + '/']
+};
+
+// Sharp responsive plugin options
+const pluginSharpResponsiveOptions = {
+    formats: [
+        { format: 'webp', width: 250, rename: { suffix: "-250px" }, webpOptions },
+        { format: 'webp', width: 300, rename: { suffix: "-300px" }, webpOptions },
+        { format: 'webp', width: 500, rename: { suffix: "-500px" }, webpOptions },
+        { format: 'webp', width: 600, rename: { suffix: "-600px" }, webpOptions },
+        { format: 'webp', width: 750, rename: { suffix: "-750px" }, webpOptions },
+        { format: 'webp', width: 900, rename: { suffix: "-900px" }, webpOptions },
+        { format: 'webp', width: 1000, rename: { suffix: "-1000px" }, webpOptions },
+        { format: 'webp', width: 1200, rename: { suffix: "-1200px" }, webpOptions },
+        { format: 'webp', width: 1250, rename: { suffix: "-1250px" }, webpOptions },
+        { format: 'webp', width: 1400, rename: { suffix: "-1400px" }, webpOptions },
+    ]
 };
 
 // Compile SCSS
@@ -193,6 +223,13 @@ gulp.task('nunjucksPages', function () {
         .pipe(browserSync.stream());
 });
 
+// Generate images
+gulp.task('generateImages', function () {
+    return gulp.src(paths.src.images)
+        .pipe(sharpResponsive(pluginSharpResponsiveOptions))
+        .pipe(gulp.dest(paths.temp.images));
+});
+
 gulp.task('assets', function () {
     return gulp.src([paths.src.assets])
         .pipe(gulp.dest(paths.temp.assets))
@@ -213,6 +250,7 @@ gulp.task(
             'pugPages',
             // 'nunjucks',
             // 'nunjucksPages',
+            'generateImages',
             'assets',
             'vendor'
         ],
@@ -226,6 +264,7 @@ gulp.task(
             // gulp.watch(nunjucksFilePagesPaths, gulp.series('nunjucksPages'));
             gulp.watch(pugFilePaths, gulp.series('pug'));
             gulp.watch(pugFilePagesPaths, gulp.series('pugPages'));
+            gulp.watch(paths.src.images, gulp.series('generateImages'));
             gulp.watch([paths.src.assets], gulp.series('assets'));
             gulp.watch([paths.src.vendor], gulp.series('vendor'));
         }
@@ -358,6 +397,19 @@ gulp.task('copy:dev:assets', function () {
         .pipe(gulp.dest(paths.dev.assets))
 });
 
+// Generate images
+gulp.task('generate:dist:images', function () {
+    return gulp.src(paths.src.images)
+        .pipe(sharpResponsive(pluginSharpResponsiveOptions))
+        .pipe(gulp.dest(paths.dist.images));
+});
+
+gulp.task('generate:dev:images', function () {
+    return gulp.src(paths.src.images)
+        .pipe(sharpResponsive(pluginSharpResponsiveOptions))
+        .pipe(gulp.dest(paths.dev.images));
+});
+
 // Copy node_modules to vendor
 gulp.task('copy:dist:vendor', function() {
     return gulp.src(npmDist(), { base: paths.src.node_modules })
@@ -374,6 +426,7 @@ gulp.task('build:dev', gulp.series(
     'copy:dev:css',
     // 'copy:dev:nunjucks',
     'copy:dev:pug',
+    'generate:dev:images',
     'copy:dev:assets',
     'beautify:css',
     'copy:dev:vendor'
@@ -383,6 +436,7 @@ gulp.task('build:dist', gulp.series(
     'copy:dist:css',
     // 'copy:dist:nunjucks',
     'copy:dist:pug',
+    'generate:dist:images',
     'copy:dist:assets',
     'minify:css',
     'minify:html',
