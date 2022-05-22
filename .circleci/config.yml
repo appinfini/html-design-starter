@@ -1,0 +1,82 @@
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: cimg/node:17.5.0
+
+orbs:
+  slack: circleci/slack@3.4.2
+
+version: 2.1
+
+jobs:
+  build:
+    <<: *defaults
+    steps:
+
+      # Checking out git branch
+      - checkout
+
+      # Installing AWS CLI
+      - run:
+          name: Install AWS CLI (first install pip, the Python package manager)
+          command: |
+            sudo apt-get update && sudo apt-get install -y python-dev
+            sudo curl -O https://bootstrap.pypa.io/pip/2.7/get-pip.py
+            sudo python get-pip.py
+            sudo pip install awscli --upgrade
+            aws --version
+
+      - run:
+          name: Configuring AWS CLI to use profile
+          command: |
+            if [ "${CIRCLE_BRANCH}" = "release" ]; then
+              aws configure --profile production set aws_access_key_id ${PROD_AWS_ACCESS_KEY_ID}
+              aws configure --profile production set aws_secret_access_key ${PROD_AWS_SECRET_ACCESS_KEY}
+              aws configure --profile production set region ${PROD_S3_REGION}
+            else
+              aws configure --profile production set aws_access_key_id ${PROD_AWS_ACCESS_KEY_ID}
+              aws configure --profile production set aws_secret_access_key ${PROD_AWS_SECRET_ACCESS_KEY}
+              aws configure --profile production set region ${PROD_S3_REGION}
+            fi
+
+      # Deploying to S3
+      - deploy:
+          name: Deploying to S3
+          command: |
+            if [ "${CIRCLE_BRANCH}" = "release" ]; then
+              aws s3 sync ${SOURCE} s3://${PROD_S3_BUCKET} --profile production --delete --cache-control max-age=0,must-revalidate,public
+            else
+              aws s3 sync ${SOURCE} s3://${PROD_S3_BUCKET} --profile production --delete --cache-control max-age=0,must-revalidate,public
+            fi
+
+      # Preparing slack message
+      - run:
+          name: Preparing slack message
+          command: |
+            if [ "${CIRCLE_BRANCH}" = "release" ]; then
+              echo "export SLACK_SUCCESS_MESSAGE='A $CIRCLE_JOB job has succeeded!\n- Job: #$CIRCLE_BUILD_NUM\n- From branch: $CIRCLE_BRANCH \n- Website: <$PROD_WEBSITE_URL|Production>'" >> $BASH_ENV
+            else
+              echo "export SLACK_SUCCESS_MESSAGE='A $CIRCLE_JOB job has succeeded!\n- Job: #$CIRCLE_BUILD_NUM\n- From branch: $CIRCLE_BRANCH \n- Website: <$PROD_WEBSITE_URL|Development>'" >> $BASH_ENV
+            fi
+
+      # Sending slack status message
+      - slack/status:
+          success_message: $SLACK_SUCCESS_MESSAGE
+          failure_message: 'A $CIRCLE_JOB job has failed!\n- Job: #$CIRCLE_BUILD_NUM\n- From branch: $CIRCLE_BRANCH'
+          mentions: $SLACK_MENTIONS # Optional: Enter the Slack IDs of any user or group (sub_team) to be mentioned
+          webhook: $SLACK_WEBHOOK # Optional: Enter a specific webhook here or the default will use $SLACK_WEBHOOK
+          channel: $SLACK_CHANNEL # Optional: If set, overrides webhook's default channel setting
+          include_project_field: false
+          include_job_number_field: false
+          include_visit_job_action: false
+
+workflows:
+  version: 2.1
+  main:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+                - release
