@@ -27,3 +27,9 @@ block content
   +container('Accordion')
     - const dataAccordion = require('./src/dummy/accordion.json')
     +accordion({ alwaysOpen: false, items: dataAccordion })
+
+  +container('Eager loaded image')
+    +image({alt: 'Banner image', loading: 'eager', src: 'assets/images/banner-250px.webp'})
+
+  +container('Lazy loaded image with srcset', 'It is recommended to only add loading=lazy to images which are positioned below the fold, if possible.')
+    +image({alt: 'Banner image', loading: 'lazy', src: 'banner'})
