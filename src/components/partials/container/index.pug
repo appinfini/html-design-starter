@@ -16,7 +16,7 @@ mixin container(title, subTitle)
       h5(class=`${componentClassName}__title`) #{title}
 
     if subTitle
-      h6(class=`${componentClassName}__title-sub`) #{subTitle}
+      p(class=`${componentClassName}__title-sub`) #{subTitle}
 
     if block
       div(class=`${componentClassName}__content`)
